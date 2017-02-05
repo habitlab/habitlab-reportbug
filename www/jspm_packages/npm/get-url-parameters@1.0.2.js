@@ -1,0 +1,1 @@
+module.exports = require("npm:get-url-parameters@1.0.2/index.js");
