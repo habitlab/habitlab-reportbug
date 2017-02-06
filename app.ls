@@ -9,6 +9,8 @@ require! {
 }
 
 jsyaml = require 'js-yaml'
+normalize_space = require 'normalize-space'
+text_clipper = require 'text-clipper'
 
 kapp = koa()
 kapp.use(koa-jsonp())
@@ -33,6 +35,9 @@ cloudinary.config({
 Gitter = require 'node-gitter'
 gitter = new Gitter getsecret('gitter_api_key')
 
+Octokat = require 'octokat'
+octo = new Octokat({token: getsecret('github_api_key')})
+
 {add_noerr, cfy} = require 'cfy'
 
 co = require 'co'
@@ -49,7 +54,8 @@ app.post '/report_bug', ->*
   this.type = 'json'
   {message, screenshot, other} = this.request.body
   user_email = this.request.body.email
-  is_public = this.request.body['public']
+  is_gitter = this.request.body['gitter']
+  is_github = this.request.body['github']
   if not message?
     this.body = JSON.stringify {response: 'error', error: 'need parameter message'}
     return
@@ -62,11 +68,7 @@ app.post '/report_bug', ->*
         other = {}
       other.screenshot_upload_error = 'Error occurred while uploading screenshot'
       other.screenshot_upload_error_message = err.toString()
-  gitter_message = message
-  if other?
-    gitter_message += '\n\n' + jsyaml.safeDump(other)
-  if screenshot_url?
-    gitter_message += '\n\n' + "[#{screenshot_url}](#{screenshot_url})"
+
   email_message = message.split('\n').join('<br>')
   if other?
     email_message += '<br><br>' + (jsyaml.safeDump(other).split('\n').join('<br>'))
@@ -75,7 +77,8 @@ app.post '/report_bug', ->*
 
   from_email = new helper.Email(default_from_email)
   to_email = new helper.Email(default_to_email)
-  subject = 'Bug report for HabitLab'
+  title = text_clipper(normalize_space(message), 80)
+  subject = '[User Feedback] ' + title
   #var img_data = 'data:image/png;base64,'
   content = new helper.Content('text/html', email_message)
   mail = new helper.Mail(from_email, subject, to_email, content)
@@ -92,9 +95,44 @@ app.post '/report_bug', ->*
   })
   sendgrid_response = yield -> sg.API request, it
 
+  github_issue_url = 'https://github.com/habitlab/habitlab/issues/'
+  if is_github
+    github_message = 'A user submitted the following via HabitLab\'s built-in Feedback form:\n\n' + (message.split('\n').join('\n\n'))
+    if other?
+      github_message += '\n\n' + jsyaml.safeDump(other)
+    if screenshot_url?
+      github_message += '\n\n' + "<img src=\"#{screenshot_url}\"></img>"
+    github_title = subject
+    new_issue = {
+      title: github_title
+      body: github_message
+    }
+    result = yield octo.repos('habitlab', 'habitlab').issues.create(new_issue)
+    if result.htmlUrl? and result.htmlUrl.startsWith? and (result.htmlUrl.startsWith('https://github.com/habitlab/habitlab/issues') or result.htmlUrl.startsWith('http://github.com/habitlab/habitlab/issues'))
+      github_issue_url = result.htmlUrl
+
+  gitter_message = 'A user submitted the following via HabitLab\'s built-in Feedback form:'
+  if is_github
+    gitter_message += '\n\nGitHub Issue: ' + "[#{}](#{})"
+  gitter_message += '\n\n' + (message.split('\n').join('\n\n'))
+  if other?
+    gitter_message += '\n\n' + jsyaml.safeDump(other)
+  if screenshot_url?
+    gitter_message += '\n\n' + "[#{screenshot_url}](#{screenshot_url})"
   if is_public
     room = yield gitter.rooms.join('habitlab/habitlab')
     room.send(gitter_message)
+
+  response_message = 'Thank you for your feedback!<br><br>'
+  response_message += 'Your message has been sent to <a href="mailto:' + default_to_email + '"></a> <br><br>'
+  if is_gitter
+    response_message += 'It has also been posted to the support chat at <a href="https://gitter.im/habitlab/habitlab">https://gitter.im/habitlab/habitlab</a> <br><br>'
+  else
+    response_message += 'If you need help, try the support chat at <a href="https://gitter.im/habitlab/habitlab">https://gitter.im/habitlab/habitlab</a> <br><br>'
+  if is_github
+    response_message += 'You can track progress at <a href="' + github_issue_url + '">' + github_issue_url + '</a> <br><br>'
+  #else
+  #  response_message += 'You can file a bug at <a href="' + github_issue_url + '">' + github_issue_url + '</a> <br><br>'
   this.body = {response: 'success'}
 
 /*

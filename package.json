@@ -13,7 +13,10 @@
     "koa-router": "5",
     "koa-static": "^2.1.0",
     "node-gitter": "^2.0.5",
-    "sendgrid": "^4.7.1"
+    "normalize-space": "^1.0.2",
+    "octokat": "^0.6.2",
+    "sendgrid": "^4.7.1",
+    "text-clipper": "^1.2.0"
   },
   "devDependencies": {
     "jquery": "^3.1.1",

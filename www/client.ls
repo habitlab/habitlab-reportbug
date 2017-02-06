@@ -45,12 +45,12 @@ co ->*
       screenshot: img_data_base64
       email: params.email
     }
-  else if params.run == 'public'
+  else if params.run == 'gitter'
     data = {
       message: '''
       Here is a long multi-line bug report I am writing.
       As you can see it is long and contains "quotes" and 'other' annoying characters! 还有汉字！
-      This report tests to see if public reports are getting sent to gitter.
+      This report tests to see if gitter reports are getting sent to gitter.
       '''
       other: {
         browser: 'Some browser'
@@ -58,7 +58,22 @@ co ->*
       }
       screenshot: img_data_base64
       email: params.email
-      'public': true
+      gitter: true
+    }
+  else if params.run == 'github'
+    data = {
+      message: '''
+      Here is a long multi-line bug report I am writing.
+      As you can see it is long and contains "quotes" and 'other' annoying characters! 还有汉字！
+      This report tests to see if github reports are getting sent to github.
+      '''
+      other: {
+        browser: 'Some browser'
+        version: 'Some version'
+      }
+      screenshot: img_data_base64
+      email: params.email
+      github: true
     }
   else
     log 'please supply a valid value for params.run'
