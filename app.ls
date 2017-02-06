@@ -119,7 +119,7 @@ app.post '/report_bug', ->*
     gitter_message += '\n\n' + jsyaml.safeDump(other)
   if screenshot_url?
     gitter_message += '\n\n' + "[#{screenshot_url}](#{screenshot_url})"
-  if is_public
+  if is_gitter
     room = yield gitter.rooms.join('habitlab/habitlab')
     room.send(gitter_message)
 
