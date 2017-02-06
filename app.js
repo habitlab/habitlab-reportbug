@@ -130,14 +130,14 @@
       room = (yield gitter.rooms.join('habitlab/habitlab'));
       room.send(gitter_message);
     }
-    response_message = 'Your message has been sent to <a href="mailto:' + default_to_email + '"></a> <br><br>';
+    response_message = 'Your message has been sent to <a href="mailto:' + default_to_email + '">' + default_to_email + '</a> <br><br>';
     if (is_gitter) {
-      response_message += 'It has also been posted to the support chat at <a href="https://gitter.im/habitlab/habitlab">https://gitter.im/habitlab/habitlab</a> <br><br>';
+      response_message += 'It has also been posted to the support chat at <a href="https://gitter.im/habitlab/habitlab" target="_blank">https://gitter.im/habitlab/habitlab</a> <br><br>';
     } else {
-      response_message += 'If you need help, try the support chat at <a href="https://gitter.im/habitlab/habitlab">https://gitter.im/habitlab/habitlab</a> <br><br>';
+      response_message += 'If you need help, try the support chat at <a href="https://gitter.im/habitlab/habitlab" target="_blank">https://gitter.im/habitlab/habitlab</a> <br><br>';
     }
     if (is_github) {
-      response_message += 'You can track progress at <a href="' + github_issue_url + '">' + github_issue_url + '</a> <br><br>';
+      response_message += 'You can track progress at <a href="' + github_issue_url + '" target="_blank">' + github_issue_url + '</a> <br><br>';
     }
     return this.body = {
       response: 'success',
