@@ -117,7 +117,7 @@
     }
     gitter_message = 'A user submitted the following via HabitLab\'s built-in Feedback form:';
     if (is_github) {
-      gitter_message += '\n\nGitHub Issue: ' + ("[" + "](" + ")");
+      gitter_message += '\n\nGitHub Issue: ' + ("[" + github_issue_url + "](" + github_issue_url + ")");
     }
     gitter_message += '\n\n' + message.split('\n').join('\n\n');
     if (other != null) {
