@@ -64,12 +64,15 @@ app.post '/report_bug', ->*
     this.body = JSON.stringify {response: 'error', error: 'need parameter message'}
     return
   screenshot_url = null
+  if not other?
+    other = {}
+  other.ip_address = request.ip
+  other.server_timestamp = Date.now()
+  other.server_localtime = new Date().toString()
   if screenshot?
     try
       screenshot_url = yield upload_to_cloudinary(screenshot)
     catch err
-      if not other?
-        other = {}
       other.screenshot_upload_error = 'Error occurred while uploading screenshot'
       other.screenshot_upload_error_message = err.toString()
 
