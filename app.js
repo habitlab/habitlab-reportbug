@@ -69,7 +69,7 @@
     } else {
       extra = {};
     }
-    extra.ip_address = request.ip;
+    extra.ip_address = this.request.ip;
     extra.server_timestamp = Date.now();
     extra.server_localtime = new Date().toString();
     if (screenshot != null) {
