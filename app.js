@@ -46,7 +46,7 @@
     this.body = 'hi';
   });
   app.post('/report_bug', function*(){
-    var ref$, message, screenshot, other, user_email, is_gitter, is_github, screenshot_url, err, email_message, from_email, to_email, title, subject, content, mail, request, sendgrid_response, github_issue_url, github_message, github_title, new_issue, result, gitter_message, room, response_message;
+    var ref$, message, screenshot, other, user_email, is_gitter, is_github, screenshot_url, extra, err, email_message, from_email, to_email, title, subject, content, mail, request, sendgrid_response, github_issue_url, github_message, github_title, new_issue, result, gitter_message, room, response_message;
     this.type = 'json';
     ref$ = this.request.body, message = ref$.message, screenshot = ref$.screenshot, other = ref$.other;
     user_email = this.request.body.email;
@@ -60,24 +60,36 @@
       return;
     }
     screenshot_url = null;
+    if (other == null) {
+      other = {};
+    }
+    if (other.extra != null) {
+      extra = other.extra;
+      delete other.extra;
+    } else {
+      extra = {};
+    }
+    extra.ip_address = request.ip;
+    extra.server_timestamp = Date.now();
+    extra.server_localtime = new Date().toString();
     if (screenshot != null) {
       try {
         screenshot_url = (yield upload_to_cloudinary(screenshot));
       } catch (e$) {
         err = e$;
-        if (other == null) {
-          other = {};
-        }
         other.screenshot_upload_error = 'Error occurred while uploading screenshot';
         other.screenshot_upload_error_message = err.toString();
       }
     }
     email_message = message.split('\n').join('<br>');
-    if (other != null) {
-      email_message += '<br><br>' + jsyaml.safeDump(other).split('\n').join('<br>');
-    }
     if (screenshot_url != null) {
       email_message += '<br><br>' + '<img src="' + screenshot_url + '"></img>';
+    }
+    if (other != null) {
+      email_message += '<br><br><pre>' + jsyaml.safeDump(other) + '</pre>';
+    }
+    if (extra != null) {
+      email_message += '<br><br><pre>' + JSON.stringify(extra) + '</pre>';
     }
     from_email = new helper.Email(default_from_email);
     to_email = new helper.Email(default_to_email);
@@ -102,11 +114,11 @@
     github_issue_url = 'https://github.com/habitlab/habitlab/issues/';
     if (is_github) {
       github_message = 'A user submitted the following via HabitLab\'s built-in Feedback form:\n\n' + message.split('\n').join('\n\n');
-      if (other != null) {
-        github_message += '\n\n' + jsyaml.safeDump(other);
-      }
       if (screenshot_url != null) {
         github_message += '\n\n' + ("<img src=\"" + screenshot_url + "\"></img>");
+      }
+      if (other != null) {
+        github_message += '\n\n' + jsyaml.safeDump(other);
       }
       github_title = subject;
       new_issue = {
@@ -123,11 +135,11 @@
       gitter_message += '\n\nGitHub Issue: ' + ("[" + github_issue_url + "](" + github_issue_url + ")");
     }
     gitter_message += '\n\n' + message.split('\n').join('\n\n');
-    if (other != null) {
-      gitter_message += '\n\n' + jsyaml.safeDump(other);
-    }
     if (screenshot_url != null) {
       gitter_message += '\n\n' + ("[" + screenshot_url + "](" + screenshot_url + ")");
+    }
+    if (other != null) {
+      gitter_message += '\n\n' + jsyaml.safeDump(other);
     }
     if (is_gitter) {
       room = (yield gitter.rooms.join('habitlab/habitlab'));

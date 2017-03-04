@@ -66,9 +66,14 @@ app.post '/report_bug', ->*
   screenshot_url = null
   if not other?
     other = {}
-  other.ip_address = request.ip
-  other.server_timestamp = Date.now()
-  other.server_localtime = new Date().toString()
+  if other.extra?
+    extra = other.extra
+    delete other.extra
+  else
+    extra = {}
+  extra.ip_address = request.ip
+  extra.server_timestamp = Date.now()
+  extra.server_localtime = new Date().toString()
   if screenshot?
     try
       screenshot_url = yield upload_to_cloudinary(screenshot)
@@ -77,10 +82,12 @@ app.post '/report_bug', ->*
       other.screenshot_upload_error_message = err.toString()
 
   email_message = message.split('\n').join('<br>')
-  if other?
-    email_message += '<br><br>' + (jsyaml.safeDump(other).split('\n').join('<br>'))
   if screenshot_url?
     email_message += '<br><br>' + '<img src="' + screenshot_url + '"></img>'
+  if other?
+    email_message += '<br><br><pre>' + (jsyaml.safeDump(other)) + '</pre>'
+  if extra?
+    email_message += '<br><br><pre>' + (JSON.stringify(extra)) + '</pre>'
 
   from_email = new helper.Email(default_from_email)
   to_email = new helper.Email(default_to_email)
@@ -105,10 +112,10 @@ app.post '/report_bug', ->*
   github_issue_url = 'https://github.com/habitlab/habitlab/issues/'
   if is_github
     github_message = 'A user submitted the following via HabitLab\'s built-in Feedback form:\n\n' + (message.split('\n').join('\n\n'))
-    if other?
-      github_message += '\n\n' + jsyaml.safeDump(other)
     if screenshot_url?
       github_message += '\n\n' + "<img src=\"#{screenshot_url}\"></img>"
+    if other?
+      github_message += '\n\n' + jsyaml.safeDump(other)
     github_title = subject
     new_issue = {
       title: github_title
@@ -122,10 +129,10 @@ app.post '/report_bug', ->*
   if is_github
     gitter_message += '\n\nGitHub Issue: ' + "[#{github_issue_url}](#{github_issue_url})"
   gitter_message += '\n\n' + (message.split('\n').join('\n\n'))
-  if other?
-    gitter_message += '\n\n' + jsyaml.safeDump(other)
   if screenshot_url?
     gitter_message += '\n\n' + "[#{screenshot_url}](#{screenshot_url})"
+  if other?
+    gitter_message += '\n\n' + jsyaml.safeDump(other)
   if is_gitter
     room = yield gitter.rooms.join('habitlab/habitlab')
     room.send(gitter_message)
