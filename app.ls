@@ -115,7 +115,7 @@ app.post '/report_bug', ->*
     if screenshot_url?
       github_message += '\n\n' + "<img src=\"#{screenshot_url}\"></img>"
     if other?
-      github_message += '\n\n' + jsyaml.safeDump(other)
+      github_message += '\n\n```\n' + jsyaml.safeDump(other) + '\n```\n'
     github_title = subject
     new_issue = {
       title: github_title
@@ -132,7 +132,7 @@ app.post '/report_bug', ->*
   if screenshot_url?
     gitter_message += '\n\n' + "[#{screenshot_url}](#{screenshot_url})"
   if other?
-    gitter_message += '\n\n' + jsyaml.safeDump(other)
+    gitter_message += '\n\n```\n' + jsyaml.safeDump(other) + '\n```\n'
   if is_gitter
     room = yield gitter.rooms.join('habitlab/habitlab')
     room.send(gitter_message)

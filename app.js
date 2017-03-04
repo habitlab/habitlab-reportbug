@@ -118,7 +118,7 @@
         github_message += '\n\n' + ("<img src=\"" + screenshot_url + "\"></img>");
       }
       if (other != null) {
-        github_message += '\n\n' + jsyaml.safeDump(other);
+        github_message += '\n\n```\n' + jsyaml.safeDump(other) + '\n```\n';
       }
       github_title = subject;
       new_issue = {
@@ -139,7 +139,7 @@
       gitter_message += '\n\n' + ("[" + screenshot_url + "](" + screenshot_url + ")");
     }
     if (other != null) {
-      gitter_message += '\n\n' + jsyaml.safeDump(other);
+      gitter_message += '\n\n```\n' + jsyaml.safeDump(other) + '\n```\n';
     }
     if (is_gitter) {
       room = (yield gitter.rooms.join('habitlab/habitlab'));
