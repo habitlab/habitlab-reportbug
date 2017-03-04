@@ -50,6 +50,10 @@ upload_to_cloudinary = cfy (img_data_url) ->*
   #throw new Error('cloudinary failed')
   return result.url
 
+app.get '/ping', ->*
+  this.body = 'hi'
+  return
+
 app.post '/report_bug', ->*
   this.type = 'json'
   {message, screenshot, other} = this.request.body

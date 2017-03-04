@@ -42,6 +42,9 @@
     });
     return result.url;
   });
+  app.get('/ping', function*(){
+    this.body = 'hi';
+  });
   app.post('/report_bug', function*(){
     var ref$, message, screenshot, other, user_email, is_gitter, is_github, screenshot_url, err, email_message, from_email, to_email, title, subject, content, mail, request, sendgrid_response, github_issue_url, github_message, github_title, new_issue, result, gitter_message, room, response_message;
     this.type = 'json';
