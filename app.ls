@@ -6,6 +6,7 @@ require! {
   'koa-jsonp'
   'koa-static'
   'sendgrid'
+  'btoa'
 }
 
 jsyaml = require 'js-yaml'
@@ -50,6 +51,11 @@ upload_to_cloudinary = cfy (img_data_url) ->*
   #throw new Error('cloudinary failed')
   return result.url
 
+upload_to_cloudinary_json = cfy (json_data) ->*
+  public_id = 'data_' + Math.floor(Math.random()*1000000000000) + '.txt'
+  result = yield -> cloudinary.v2.uploader.upload 'data:text/plain;base64,' + btoa(JSON.stringify(json_data)), {public_id, resource_type: 'raw'}, it
+  return result.url
+
 app.get '/ping', ->*
   this.body = 'hi'
   return
@@ -86,8 +92,15 @@ app.post '/report_bug', ->*
     email_message += '<br><br>' + '<img src="' + screenshot_url + '"></img>'
   if other?
     email_message += '<br><br><pre>' + (jsyaml.safeDump(other)) + '</pre>'
+  #if extra?
+  #  email_message += '<br><br><pre>' + (JSON.stringify(extra)) + '</pre>'
   if extra?
-    email_message += '<br><br><pre>' + (JSON.stringify(extra)) + '</pre>'
+    try
+      data_url = yield upload_to_cloudinary_json(extra)
+      email_message += '<br><br><a href="' + data_url + '"></a><br><br>'
+    catch err
+      other.extra_upload_error = 'Error occurred while uploading extra data'
+      other.extra_upload_error = err.toString()
 
   from_email = new helper.Email(default_from_email)
   to_email = new helper.Email(default_to_email)

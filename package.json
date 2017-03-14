@@ -1,6 +1,7 @@
 {
   "main": "index.js",
   "dependencies": {
+    "btoa": "^1.1.2",
     "cfy": "^1.0.20",
     "cloudinary": "^1.6.0",
     "co": "^4.6.0",
