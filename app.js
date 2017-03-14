@@ -45,7 +45,7 @@
   });
   upload_to_cloudinary_json = cfy(function*(json_data){
     var public_id, result;
-    public_id = 'data_' + Math.floor(Math.random() * 1000000000000) + '.txt';
+    public_id = Math.floor(Math.random() * 100000000000000000000000000) + '.txt';
     result = (yield function(it){
       return cloudinary.v2.uploader.upload('data:text/plain;base64,' + btoa(JSON.stringify(json_data)), {
         public_id: public_id,
@@ -103,7 +103,7 @@
     if (extra != null) {
       try {
         data_url = (yield upload_to_cloudinary_json(extra));
-        email_message += '<br><br><a href="' + data_url + '"></a><br><br>';
+        email_message += '<br><br><a href="' + data_url + '">' + data_url + '</a><br><br>';
       } catch (e$) {
         err = e$;
         other.extra_upload_error = 'Error occurred while uploading extra data';

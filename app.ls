@@ -52,7 +52,7 @@ upload_to_cloudinary = cfy (img_data_url) ->*
   return result.url
 
 upload_to_cloudinary_json = cfy (json_data) ->*
-  public_id = 'data_' + Math.floor(Math.random()*1000000000000) + '.txt'
+  public_id = Math.floor(Math.random()*100000000000000000000000000) + '.txt'
   result = yield -> cloudinary.v2.uploader.upload 'data:text/plain;base64,' + btoa(JSON.stringify(json_data)), {public_id, resource_type: 'raw'}, it
   return result.url
 
@@ -97,7 +97,7 @@ app.post '/report_bug', ->*
   if extra?
     try
       data_url = yield upload_to_cloudinary_json(extra)
-      email_message += '<br><br><a href="' + data_url + '"></a><br><br>'
+      email_message += '<br><br><a href="' + data_url + '">' + data_url + '</a><br><br>'
     catch err
       other.extra_upload_error = 'Error occurred while uploading extra data'
       other.extra_upload_error = err.toString()
