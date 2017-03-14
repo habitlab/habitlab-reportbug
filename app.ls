@@ -52,7 +52,7 @@ upload_to_cloudinary = cfy (img_data_url) ->*
   return result.url
 
 upload_to_cloudinary_json = cfy (json_data) ->*
-  public_id = Math.floor(Math.random()*100000000000000000000000000) + '.txt'
+  public_id = [Math.floor(Math.random()*10) for i from 0 til 28].join('') + '.txt'
   result = yield -> cloudinary.v2.uploader.upload 'data:text/plain;base64,' + btoa(JSON.stringify(json_data)), {public_id, resource_type: 'raw'}, it
   return result.url
 

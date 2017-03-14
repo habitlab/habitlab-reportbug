@@ -44,8 +44,15 @@
     return result.url;
   });
   upload_to_cloudinary_json = cfy(function*(json_data){
-    var public_id, result;
-    public_id = Math.floor(Math.random() * 100000000000000000000000000) + '.txt';
+    var public_id, i, result;
+    public_id = (yield* (function*(){
+      var i$, results$ = [];
+      for (i$ = 0; i$ < 28; ++i$) {
+        i = i$;
+        results$.push(Math.floor(Math.random() * 10));
+      }
+      return results$;
+    }())).join('') + '.txt';
     result = (yield function(it){
       return cloudinary.v2.uploader.upload('data:text/plain;base64,' + btoa(JSON.stringify(json_data)), {
         public_id: public_id,
