@@ -15,7 +15,9 @@
   kapp = koa();
   kapp.use(koaJsonp());
   kapp.use(koaLogger());
-  kapp.use(koaBodyparser());
+  kapp.use(koaBodyparser({
+    jsonLimit: '20mb'
+  }));
   app = koaRouter();
   helper = sendgrid.mail;
   getsecret = require('getsecret');

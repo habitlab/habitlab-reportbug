@@ -16,7 +16,7 @@ text_clipper = require 'text-clipper'
 kapp = koa()
 kapp.use(koa-jsonp())
 kapp.use(koa-logger())
-kapp.use(koa-bodyparser())
+kapp.use(koa-bodyparser({jsonLimit: '20mb'}))
 app = koa-router()
 
 helper = sendgrid.mail
